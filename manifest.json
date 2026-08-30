@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Vimeo yt-dlp Grabber",
+  "version": "1.0",
+  "description": "Detects Vimeo player requests and provides a yt-dlp copy button.",
+  "icons": {
+    "16": "assets/icon_16.png",
+    "32": "assets/icon_32.png",
+    "48": "assets/icon_48.png",
+    "128": "assets/icon_128.png"
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "permissions": [
+    "webRequest",
+    "tabs",
+    "clipboardWrite",
+    "storage"
+  ],
+  "background": {
+    "scripts": ["src/background/background.js"]
+  },
+  "action": {
+    "default_icon": "assets/icon_32.png",
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Vimeo yt-dlp Grabber"
+  },
+  "sidebar_action": {
+    "default_panel": "src/sidebar/sidebar.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "yt-dlp-grabber@example.com",
+      "strict_min_version": "109.0"
+    }
+  }
+}

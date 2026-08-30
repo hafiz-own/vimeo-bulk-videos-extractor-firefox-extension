@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <img src="../../assets/icon.svg" alt="yt-dlp Grabber" class="app-icon">
+      <div class="brand-text">
+        <span class="title">yt-dlp Grabber</span>
+        <span class="subtitle">Vimeo Capture Assistant</span>
+      </div>
+    </div>
+    <div id="message-bar" class="message-bar hidden"></div>
+  </div>
+
+  <main class="layout">
+    <!-- Recorder Controls -->
+    <section class="panel recorder-panel">
+      <div class="recorder-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span class="status-text" id="status-text">Idle</span>
+      </div>
+      <div class="profile-picker">
+        <label for="profile-select" class="profile-label">Profile</label>
+        <select id="profile-select" class="profile-select">
+          <option value="p480">480p (Recommended)</option>
+          <option value="p720">720p</option>
+          <option value="p1080">1080p</option>
+          <option value="best">Best Available</option>
+          <option value="audio">Audio Only</option>
+        </select>
+      </div>
+      <div class="btn-group">
+        <button id="record-btn" class="btn primary">Start Recording</button>
+      </div>
+    </section>
+
+    <!-- Recorded results section -->
+    <section id="bulk-result-section" class="panel bulk-section hidden">
+      <div class="section-header">
+        <div class="section-title-row">
+          <span class="section-title">Recorded Playlist Command</span>
+          <span class="profile-chip" id="profile-chip">480p (Recommended)</span>
+        </div>
+        <button id="clear-bulk-btn" class="text-link-btn">Clear</button>
+      </div>
+      <div class="cmd-row">
+        <div class="cmd-box" id="bulk-cmd-box">yt-dlp ...</div>
+      </div>
+      <div class="bulk-actions">
+        <button class="copy-btn" id="bulk-copy-btn" title="Copy Bulk Command">📋</button>
+        <button class="copy-btn export-btn" id="bulk-export-btn" title="Export as urls.txt">📥</button>
+      </div>
+    </section>
+
+    <!-- Queue Manager -->
+    <section id="queue-section" class="panel queue-panel hidden">
+      <div class="section-header">
+        <span class="section-title">Capture Queue</span>
+        <div class="queue-actions">
+          <button id="queue-select-all-btn" class="text-link-btn">All</button>
+          <button id="queue-select-none-btn" class="text-link-btn">None</button>
+        </div>
+      </div>
+      <div id="queue-list" class="queue-list"></div>
+    </section>
+
+    <!-- Stats Panel -->
+    <section class="panel stats-panel">
+      <div class="section-header">
+        <span class="section-title">Session Stats</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Captured</span>
+          <span class="stat-value" id="stat-captured">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Unique IDs</span>
+          <span class="stat-value" id="stat-unique">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Duplicates</span>
+          <span class="stat-value" id="stat-duplicates">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">History</span>
+          <span class="stat-value" id="stat-history">0</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">New Since Copy/Export</span>
+          <span class="stat-value" id="stat-new-since">0</span>
+        </div>
+        <div class="stat-card stat-card-wide">
+          <span class="stat-label">Profile Breakdown</span>
+          <div class="profile-breakdown" id="stat-profile-breakdown">No actions yet</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab-specific detected list -->
+    <section class="panel tab-panel">
+      <div class="section-header">
+        <span class="section-title">Current Tab</span>
+        <button id="clear-tab-btn" class="text-link-btn hidden">Clear</button>
+      </div>
+      <div id="content">
+        <p class="empty">No Vimeo videos detected on this tab.</p>
+      </div>
+    </section>
+
+    <!-- Footer Info & History Management -->
+    <div class="footer">
+      <button id="clear-history-btn" class="footer-btn">Reset Download History</button>
+    </div>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
