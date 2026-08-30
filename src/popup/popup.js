@@ -257,12 +257,12 @@ function renderQueue() {
   const entries = getQueueEntries();
   if (entries.length === 0) {
     queueSection.classList.add("hidden");
-    queueList.innerHTML = "";
+    queueList.textContent = "";
     return;
   }
 
   queueSection.classList.remove("hidden");
-  queueList.innerHTML = "";
+  queueList.textContent = "";
 
   entries.forEach((entry, index) => {
     const row = document.createElement("div");
@@ -434,14 +434,14 @@ async function updateUI() {
     if (isRecording) {
       statusDot.className = "status-dot recording";
       statusText.textContent = `Recording (${lastKnownState.recordedVideos.length} found)`;
-      recordBtn.textContent = "Stop & Copy";
+      recordBtn.textContent = "Stop Batch & Copy";
       recordBtn.className = "btn primary recording";
     } else {
       statusDot.className = "status-dot";
       statusText.textContent = lastKnownState.recordedVideos.length > 0
         ? `Recording stopped (${lastKnownState.recordedVideos.length} total)`
         : "Idle";
-      recordBtn.textContent = "Start Recording";
+      recordBtn.textContent = "Start Batch Capture";
       recordBtn.className = "btn primary";
     }
 
@@ -463,13 +463,17 @@ async function updateUI() {
 
 function renderTabVideo(video, history = []) {
   if (!video) {
-    content.innerHTML = `<p class="empty">No Vimeo videos detected on this tab.</p>`;
+    content.textContent = "";
+    const p = document.createElement("p");
+    p.className = "empty";
+    p.textContent = "No Vimeo videos detected on this tab.";
+    content.appendChild(p);
     clearTabBtn.classList.add("hidden");
     return;
   }
 
   clearTabBtn.classList.remove("hidden");
-  content.innerHTML = "";
+  content.textContent = "";
 
   const card = document.createElement("div");
   card.className = "video-card";
@@ -478,23 +482,51 @@ function renderTabVideo(video, history = []) {
   const cmd = buildYtDlpCommand([video.url], { referer });
   const isCopied = history.includes(video.videoId);
 
-  card.innerHTML = `
-    <div class="video-meta-row">
-      <div class="video-title" style="font-weight: 500; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-        ${escapeHtml(video.title || "Unknown Page")}
-      </div>
-      <div class="video-id">
-        ID: ${video.videoId}
-        ${isCopied ? '<span class="history-tag">✓ Copied</span>' : ''}
-      </div>
-    </div>
-    <div class="cmd-row">
-      <div class="cmd-box">${escapeHtml(cmd)}</div>
-      <button class="copy-btn" title="Copy command">📋</button>
-    </div>
-  `;
+  const metaRow = document.createElement("div");
+  metaRow.className = "video-meta-row";
 
-  const btn = card.querySelector(".copy-btn");
+  const titleDiv = document.createElement("div");
+  titleDiv.className = "video-title";
+  titleDiv.style.fontWeight = "500";
+  titleDiv.style.marginBottom = "4px";
+  titleDiv.style.overflow = "hidden";
+  titleDiv.style.textOverflow = "ellipsis";
+  titleDiv.style.whiteSpace = "nowrap";
+  titleDiv.textContent = video.title || "Unknown Page";
+  
+  const idDiv = document.createElement("div");
+  idDiv.className = "video-id";
+  idDiv.textContent = `ID: ${video.videoId}`;
+  
+  if (isCopied) {
+    const historyTag = document.createElement("span");
+    historyTag.className = "history-tag";
+    historyTag.textContent = "✓ Copied";
+    idDiv.appendChild(document.createTextNode(" "));
+    idDiv.appendChild(historyTag);
+  }
+
+  metaRow.appendChild(titleDiv);
+  metaRow.appendChild(idDiv);
+
+  const cmdRow = document.createElement("div");
+  cmdRow.className = "cmd-row";
+  
+  const cmdBox = document.createElement("div");
+  cmdBox.className = "cmd-box";
+  cmdBox.textContent = cmd;
+
+  const btn = document.createElement("button");
+  btn.className = "copy-btn";
+  btn.title = "Copy command";
+  btn.textContent = "📋";
+
+  cmdRow.appendChild(cmdBox);
+  cmdRow.appendChild(btn);
+
+  card.appendChild(metaRow);
+  card.appendChild(cmdRow);
+
   btn.addEventListener("click", async () => {
     try {
       await copyToClipboard(cmd, btn);

@@ -295,9 +295,4 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
-// Setup side panel behavior on installation
-chrome.runtime.onInstalled.addListener(() => {
-  if (chrome.sidePanel) {
-    chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch(() => {});
-  }
-});
+
