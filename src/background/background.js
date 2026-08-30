@@ -16,14 +16,14 @@ async function debouncedSaveState(stateUpdate) {
   if (saveTimeout) clearTimeout(saveTimeout);
   
   saveTimeout = setTimeout(async () => {
-    await chrome.storage.local.set(pendingState);
+    await browser.storage.local.set(pendingState);
     pendingState = null;
     broadcastStateChange();
   }, 300); // 300ms debounce window
 }
 
 async function getState() {
-  const res = await chrome.storage.local.get({
+  const res = await browser.storage.local.get({
     detectedVideos: {},
     isRecording: false,
     recordedVideos: [],
@@ -36,20 +36,20 @@ async function getState() {
 }
 
 async function saveState(stateUpdate) {
-  await chrome.storage.local.set(stateUpdate);
+  await browser.storage.local.set(stateUpdate);
 }
 
 function broadcastStateChange() {
-  chrome.runtime.sendMessage({ type: "stateChanged" }).catch(() => {});
+  browser.runtime.sendMessage({ type: "stateChanged" }).catch(() => {});
 }
 
 async function setReadyBadge(tabId) {
   try {
-    await chrome.action.setBadgeText({
+    await browser.action.setBadgeText({
       text: "1",
       tabId,
     });
-    await chrome.action.setBadgeBackgroundColor({
+    await browser.action.setBadgeBackgroundColor({
       color: "#1d4ed8",
       tabId,
     });
@@ -60,8 +60,8 @@ async function setReadyBadge(tabId) {
 
 async function clearTabBadge(tabId) {
   try {
-    await chrome.action.setBadgeText({ text: null, tabId });
-    await chrome.action.setBadgeBackgroundColor({ color: null, tabId });
+    await browser.action.setBadgeText({ text: null, tabId });
+    await browser.action.setBadgeBackgroundColor({ color: null, tabId });
   } catch (e) {
     console.warn(`Could not clear badge for tab ${tabId}:`, e.message);
   }
@@ -85,16 +85,16 @@ async function restoreReadyBadges(detectedVideos) {
 
 async function updateRecordingBadge(isRecording, recordedVideos, detectedVideos) {
   if (isRecording) {
-    await chrome.action.setBadgeText({ text: String(recordedVideos.length) });
-    await chrome.action.setBadgeBackgroundColor({ color: "#b91c1c" });
+    await browser.action.setBadgeText({ text: String(recordedVideos.length) });
+    await browser.action.setBadgeBackgroundColor({ color: "#b91c1c" });
   } else {
-    await chrome.action.setBadgeText({ text: "" });
+    await browser.action.setBadgeText({ text: "" });
     await restoreReadyBadges(detectedVideos);
   }
 }
 
 // Listener for network requests
-chrome.webRequest.onCompleted.addListener(
+browser.webRequest.onCompleted.addListener(
   async (details) => {
     const match = details.url.match(/player\.vimeo\.com\/video\/(\d+)/);
     if (!match) return;
@@ -117,7 +117,7 @@ chrome.webRequest.onCompleted.addListener(
 
     if (tabId >= 0) {
       try {
-        const tab = await chrome.tabs.get(tabId);
+        const tab = await browser.tabs.get(tabId);
         if (tab) {
           if (tab.url && !referer) referer = tab.url;
           if (tab.title) tabTitle = tab.title;
@@ -191,7 +191,7 @@ chrome.webRequest.onCompleted.addListener(
 );
 
 // Clean up when a tab is closed
-chrome.tabs.onRemoved.addListener(async (tabId) => {
+browser.tabs.onRemoved.addListener(async (tabId) => {
   const state = await getState();
   if (state.detectedVideos[tabId]) {
     delete state.detectedVideos[tabId];
@@ -201,7 +201,7 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
 });
 
 // Clean up when a tab navigates to a new page
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   if (changeInfo.status === "loading") {
     const state = await getState();
     if (state.detectedVideos[tabId]) {
@@ -216,11 +216,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
 });
 
 // Message listener
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "getVideos") {
     (async () => {
       const state = await getState();
-      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      const tabs = await browser.tabs.query({ active: true, currentWindow: true });
       const tabId = tabs[0]?.id;
       sendResponse({
         tabVideo: state.detectedVideos[tabId] || null,
@@ -272,7 +272,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "clearTabVideo") {
     (async () => {
       const state = await getState();
-      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      const tabs = await browser.tabs.query({ active: true, currentWindow: true });
       const tabId = tabs[0]?.id;
       if (tabId >= 0 && state.detectedVideos[tabId]) {
         delete state.detectedVideos[tabId];

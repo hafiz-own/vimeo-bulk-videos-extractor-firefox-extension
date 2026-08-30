@@ -85,7 +85,7 @@ const profileUsageCounts = {
   audio: 0
 };
 
-chrome.runtime.onMessage.addListener((msg) => {
+browser.runtime.onMessage.addListener((msg) => {
   if (msg && msg.type === "stateChanged") {
     scheduleUpdateUI();
   }
@@ -119,7 +119,7 @@ function bindProfileSelector() {
     renderBulkCommand();
 
     try {
-      await chrome.storage.local.set({ selectedProfileKey });
+      await browser.storage.local.set({ selectedProfileKey });
     } catch (error) {
       handleError("Failed to save selected profile", error);
     }
@@ -138,7 +138,7 @@ function bindStaticActions() {
 }
 
 async function loadSelectedProfile() {
-  const res = await chrome.storage.local.get("selectedProfileKey");
+  const res = await browser.storage.local.get("selectedProfileKey");
   if (DOWNLOAD_PROFILES[res.selectedProfileKey]) {
     selectedProfileKey = res.selectedProfileKey;
   }
@@ -397,7 +397,7 @@ async function updateUI() {
   updateInFlight = true;
   try {
     const [response, history] = await Promise.all([
-      chrome.runtime.sendMessage({ type: "getVideos" }),
+      browser.runtime.sendMessage({ type: "getVideos" }),
       getCopiedHistory()
     ]);
 
@@ -543,9 +543,9 @@ function renderTabVideo(video, history = []) {
 
 async function onRecordButtonClick() {
   try {
-    const response = await chrome.runtime.sendMessage({ type: "getVideos" });
+    const response = await browser.runtime.sendMessage({ type: "getVideos" });
     if (response.isRecording) {
-      await chrome.runtime.sendMessage({ type: "stopRecording" });
+      await browser.runtime.sendMessage({ type: "stopRecording" });
       await updateUI();
 
       const selectedEntries = getActiveQueueEntries();
@@ -572,7 +572,7 @@ async function onRecordButtonClick() {
         }, 1800);
       }
     } else {
-      await chrome.runtime.sendMessage({ type: "startRecording" });
+      await browser.runtime.sendMessage({ type: "startRecording" });
       excludedQueueIds.clear();
       selectedQueueIds = new Set();
       queueOrderIds = [];
@@ -587,7 +587,7 @@ async function onRecordButtonClick() {
 
 async function onClearBulkClick() {
   try {
-    await chrome.runtime.sendMessage({ type: "clearRecording" });
+    await browser.runtime.sendMessage({ type: "clearRecording" });
     excludedQueueIds.clear();
     selectedQueueIds = new Set();
     queueOrderIds = [];
@@ -601,7 +601,7 @@ async function onClearBulkClick() {
 
 async function onClearTabClick() {
   try {
-    await chrome.runtime.sendMessage({ type: "clearTabVideo" });
+    await browser.runtime.sendMessage({ type: "clearTabVideo" });
     await updateUI();
   } catch (error) {
     handleError("Failed to clear tab video", error);
@@ -679,8 +679,8 @@ function onQueueSelectNone() {
 async function onClearHistoryClick() {
   try {
     const now = Date.now();
-    await chrome.storage.local.set({ copiedHistory: [] });
-    await chrome.runtime.sendMessage({ type: "resetSession" });
+    await browser.storage.local.set({ copiedHistory: [] });
+    await browser.runtime.sendMessage({ type: "resetSession" });
     sessionStartedAt = now;
     await updateUI();
     showMessage("Download history cleared.", "success");
@@ -695,7 +695,7 @@ function trackProfileUsage(profileKey) {
 }
 
 function getCopiedHistory() {
-  return chrome.storage.local
+  return browser.storage.local
     .get("copiedHistory")
     .then((res) => res.copiedHistory || []);
 }
@@ -706,7 +706,7 @@ function addToHistory(urlsOrIds) {
     items.forEach((item) => {
       if (!history.includes(item)) history.push(item);
     });
-    return chrome.storage.local.set({ copiedHistory: history });
+    return browser.storage.local.set({ copiedHistory: history });
   });
 }
 
